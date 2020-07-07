@@ -98,10 +98,14 @@ class ResizeTransform(Transform):
             if img.shape[2]%3<3 and img.shape[2]%3!=0:
               limit1=img.shape[2]-img.shape[2]%3
               limit2=img.shape[2]
-              pil_image = Image.fromarray(img[...,limit1*3:limit2*3 ])
-              interp_method = interp if interp is not None else self.interp
-              pil_img = pil_image.resize((self.new_w, self.new_h), interp_method)
-              allIMG=np.concatenate([allIMG, pil_img], axis=2)
+              for ch in range(limit1, limit2):
+                img1=img[...,ch]
+                pil_image = Image.fromarray(img1)
+                interp_method = interp if interp is not None else self.interp
+                pil_img = pil_image.resize((self.new_w, self.new_h), interp_method)
+                pil_img=np.asarray(pil_img)
+                pil_img=pil_img[..., np.newaxis]
+                allIMG=np.concatenate([allIMG, pil_img], axis=2)
             ret = np.asarray(allIMG)
         else:
             # PIL only supports uint8
